@@ -8,9 +8,11 @@ dotenv.config();
 
 const app = express();
 
+// Middlewares
 app.use(cors());
 app.use(bodyParser.json());
 
+// AI Route
 app.post("/api/ai", async (req, res) => {
     const userMessage = req.body.message;
 
@@ -36,12 +38,19 @@ app.post("/api/ai", async (req, res) => {
 
         const data = await response.json();
 
-        res.json({ bot: data.choices[0].message.content });
+        // If API returns no message or undefined
+        const botReply =
+            data?.choices?.[0]?.message?.content ||
+            "AI cavabı alına bilmədi.";
+
+        res.json({ bot: botReply });
 
     } catch (error) {
-        console.error(error);
-        res.status(500).json({ bot: "Server xətası baş verdi" });
+        console.error("AI ERROR:", error);
+        res.status(500).json({ bot: "Server xətası baş verdi." });
     }
 });
 
-app.listen(3000, () => console.log("Backend çalışır 3000"));
+// RENDER port handling
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => console.log(`Backend çalışır PORT: ${PORT}`));
